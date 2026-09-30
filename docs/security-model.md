@@ -2,8 +2,44 @@
 
 This document defines the threat model and defense mechanisms for the prototype architecture.
 
-## Core Principle
-Never trust client-side validation. While the Swift Core/Kotlin applications may validate data locally for safety and UX, the backend must independently validate every request.
+## Security Boundaries
+
+```text
+Kotlin UI
+   │
+   │ requests
+   ▼
+Swift Core
+   │
+   ├── validation
+   ├── policy
+   ├── local processing
+   └── request preparation
+   │
+   ▼
+Backend
+   │
+   ├── authentication
+   ├── application state
+   └── synchronization
+```
+
+## Hard Constraints
+
+### Client must NEVER:
+* store backend secrets
+* bypass authentication
+* make authorization decisions
+* trust user-supplied IDs
+* store unnecessary sensitive information
+
+### Server must NEVER:
+* trust client validation
+* assume the client is honest
+* expose database credentials
+* accept arbitrary service definitions
+
+The client is always hostile from the server's perspective. Even a well-engineered Swift core can be modified if someone controls the physical device. The backend must independently validate every request.
 
 ## Threat: Unauthorized Access to Applications
 * Threat Description: An attacker modifies an applicationId in an API request to view or modify an application belonging to another user.
