@@ -43,6 +43,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":androidApp")
-include(":shared")
-include(":webApp")
+include(":android")
+include(":core")
+include(":web")
