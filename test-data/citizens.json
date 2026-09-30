@@ -1,0 +1,16 @@
+[
+  {
+    "id": "TEST-000001",
+    "name": "Test Person",
+    "dob": "2000-01-01",
+    "phone": "+91-90000-00001",
+    "address": "42 Example Road, Demo City, India"
+  },
+  {
+    "id": "TEST-000002",
+    "name": "Demo User",
+    "dob": "1995-05-15",
+    "phone": "+91-90000-00002",
+    "address": "84 Sample Ave, Demo City, India"
+  }
+]
