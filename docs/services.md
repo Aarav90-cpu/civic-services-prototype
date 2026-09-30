@@ -32,3 +32,36 @@ Generates a synthetic digital identity document once an application is approved.
 Simulates the workflow of requesting a physical civic card.
 * Workflow: Request Physical Card -> Confirm Address -> Select delivery option -> Submit -> Generates Card Request ID.
 * State Progression: PROCESSING -> DISPATCHED.
+
+## Schema-Driven Service UI
+To ensure scalability, the client applications do not hard-code government services. Instead, the UI renders services dynamically from structured definitions provided by the backend.
+
+### Service Definition Format
+Each service is defined by a versioned payload that outlines localized titles, necessary requirements, and the step-by-step workflow.
+
+Example for **New Enrollment**:
+```json
+{
+  "id": "enrollment",
+  "version": 1,
+  "title": {
+    "en": "New Identity Enrollment",
+    "hi": "नई पहचान पंजीकरण",
+    "mr": "नवीन ओळख नोंदणी"
+  },
+  "requirements": [
+    "identity_information",
+    "address_information",
+    "supporting_document"
+  ],
+  "workflow": [
+    "personal_information",
+    "address",
+    "documents",
+    "appointment",
+    "review",
+    "submission"
+  ]
+}
+```
+This architecture allows the government to introduce new services or alter workflows without requiring an app update.

@@ -1,0 +1,22 @@
+{
+  "id": "enrollment",
+  "version": 1,
+  "title": {
+    "en": "New Identity Enrollment",
+    "hi": "नई पहचान पंजीकरण",
+    "mr": "नवीन ओळख नोंदणी"
+  },
+  "requirements": [
+    "identity_information",
+    "address_information",
+    "supporting_document"
+  ],
+  "workflow": [
+    "personal_information",
+    "address",
+    "documents",
+    "appointment",
+    "review",
+    "submission"
+  ]
+}
