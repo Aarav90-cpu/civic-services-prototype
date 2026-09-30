@@ -1,25 +1,33 @@
 # Performance Benchmarks
 
-This document outlines the testing framework and metrics used to prove the performance claims of the lightweight architecture, specifically targeting edge/local hardware.
+This document outlines the comparative testing framework used to prove the performance claims of the lightweight architecture. 
 
-## Target Hardware
-* Device: Raspberry Pi 4 (or equivalent edge computing node)
+## Methodology: Measure. Don't Predict.
+To avoid premature optimization, benchmarking follows a strict sequential phase strategy:
 
-## Workload Definition
-* Target Throughput: 50 requests per second
-* Concurrent Clients: [To be defined during load testing]
-* Test Duration: [e.g., 15 minutes]
+1. **Phase 1: Correctness (Development Machine)**
+   * Deploy the Swift backend to a standard laptop.
+   * Connect to local SQLite/PostgreSQL.
+   * Ensure all synthetic workflows execute securely and correctly.
 
-## Key Metrics to Track
-During benchmark runs, the following metrics will be recorded:
-* Total Requests: Number of requests processed.
-* Errors: Count of failed requests or timeouts.
-* Latency (p50): Median response time (ms).
-* Latency (p95): 95th percentile response time (ms).
-* Latency (p99): 99th percentile response time (ms).
-* Resource Utilization:
-  * CPU Load (%)
-  * Memory Usage (MB)
+2. **Phase 2: Baseline Benchmark (Development Machine)**
+   * Execute load tests against the laptop environment to establish a theoretical maximum baseline.
+
+3. **Phase 3: Edge Benchmark (Raspberry Pi 4)**
+   * Deploy the exact same backend and database configuration to the Raspberry Pi 4.
+   * Run the identical benchmarking suite.
+
+## Comparative Matrix
+The final results will be measured (not predicted) and recorded in the following format:
+
+| Metric | Laptop (Baseline) | Raspberry Pi 4 (Edge) |
+|---|---|---|
+| **Requests/sec** | ??? | ??? |
+| **p50 Latency (ms)** | ??? | ??? |
+| **p95 Latency (ms)** | ??? | ??? |
+| **CPU Load (%)** | ??? | ??? |
+| **RAM Usage (MB)** | ??? | ??? |
+| **Power (W)** | ??? | ??? |
 
 ## Goal
-To demonstrate that a secure, well-architected government service platform can operate with high concurrency and low latency on minimal infrastructure without sacrificing data integrity.
+To demonstrate that a secure, well-architected government service platform can operate with high concurrency and low latency on minimal infrastructure by directly comparing standard hardware against resource-constrained edge hardware.
