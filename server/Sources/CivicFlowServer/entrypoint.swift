@@ -30,7 +30,7 @@ struct App {
         
         // Bind to all interfaces so external devices (like your phone) can connect
         app.http.server.configuration.hostname = "0.0.0.0"
-        app.http.server.configuration.port = 8080
+        app.http.server.configuration.port = 8765
         
         // CORS config
         let corsConfiguration = CORSMiddleware.Configuration(
@@ -41,7 +41,7 @@ struct App {
         let cors = CORSMiddleware(configuration: corsConfiguration)
         app.middleware.use(cors)
         
-        app.post("v1", "applications") { req async throws -> ApplicationResponse in
+        app.post("UX") { req async throws -> ApplicationResponse in
             let enrollmentReq = try req.content.decode(EnrollmentRequest.self)
             
             // Server-side validation
@@ -55,7 +55,7 @@ struct App {
             return ApplicationResponse(applicationId: id, status: "submitted")
         }
         
-        app.get("v1", "applications", ":id") { req async throws -> ApplicationResponse in
+        app.get("UX", ":id") { req async throws -> ApplicationResponse in
             guard let id = req.parameters.get("id") else {
                 throw Abort(.badRequest)
             }

@@ -40,10 +40,10 @@ class ApiClient(
     suspend fun submitEnrollment(request: EnrollmentRequest): ApiResult<ApplicationResponse> {
         // Build the fallback list. Loopback entries are excluded on physical devices.
         val hostsToTry = buildList {
-            add("http://$serverHost:8080")  // LAN IP (correct path for Android on same WiFi)
-            add("http://10.0.2.2:8080")     // emulator gateway to host
+            add("http://$serverHost:8765")  // LAN IP (correct path for Android on same WiFi)
+            add("http://10.0.2.2:8765")     // emulator gateway to host
             if (!skipLoopback) {
-                add("http://127.0.0.1:8080") // loopback — only useful on desktop/web
+                add("http://127.0.0.1:8765") // loopback — only useful on desktop/web
             }
         }
 
@@ -52,7 +52,7 @@ class ApiClient(
         for (host in hostsToTry) {
             try {
                 println("Trying host: $host")
-                val response = client.post("$host/v1/applications") {
+                val response = client.post("$host/UX/") {
                     contentType(ContentType.Application.Json)
                     header("Bypass-Tunnel-Reminder", "true")
                     setBody(request)
