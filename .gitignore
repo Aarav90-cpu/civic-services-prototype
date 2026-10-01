@@ -4,3 +4,9 @@ build/
 .idea/
 local.properties
 *.iml
+.gradle/
+.kotlin/
+web/build/
+web/.gradle/
+server/.build
+.env.example

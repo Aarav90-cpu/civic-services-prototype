@@ -46,3 +46,4 @@ dependencyResolutionManagement {
 include(":android")
 include(":core")
 include(":web")
+include(":desktop")

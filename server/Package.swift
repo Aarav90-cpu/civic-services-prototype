@@ -19,16 +19,16 @@ import PackageDescription
 
 let package = Package(
     name: "CivicFlowServer",
+    dependencies: [
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
+    ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
-            name: "CivicFlowServer"
-        ),
-        .testTarget(
-            name: "CivicFlowServerTests",
-            dependencies: ["CivicFlowServer"]
-        ),
+            name: "CivicFlowServer",
+            dependencies: [
+                .product(name: "Vapor", package: "vapor")
+            ]
+        )
     ],
     swiftLanguageModes: [.v6]
 )

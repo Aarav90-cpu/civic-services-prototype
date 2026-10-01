@@ -29,7 +29,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            // skipLoopback=true: on a physical device, 127.0.0.1 is the phone itself, not the server
+            App(serverHost = BuildConfig.SERVER_HOST, skipLoopback = true)
         }
     }
 }
