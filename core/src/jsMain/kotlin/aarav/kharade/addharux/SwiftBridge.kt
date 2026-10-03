@@ -16,10 +16,12 @@
 
 package aarav.kharade.addharux
 
-class Greeting {
-    private val platform = getPlatform()
+actual object SwiftBridge {
+    actual suspend fun submitApplication(json: String): String {
+        return "Web JS unimplemented for submitApplication"
+    }
 
-    fun greet(): String {
-        return sayHello(platform.name)
+    actual suspend fun getApplication(id: String): String {
+        return "Web JS unimplemented for getApplication"
     }
 }

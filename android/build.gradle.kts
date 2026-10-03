@@ -16,8 +16,6 @@
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-// Hardcode the Raspberry Pi static IP since dynamic detection causes issues upon restarts
-val serverHost: String = "192.168.31.81"
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -33,7 +31,6 @@ dependencies {
     implementation(project(":core"))
 
     implementation(libs.androidx.activity.compose)
-    implementation(libs.ktor.client.okhttp)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
@@ -49,8 +46,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        // Inject the host machine's current LAN IP so the app always reaches the dev server
-        buildConfigField("String", "SERVER_HOST", "\"$serverHost\"")
+        
+
     }
     packaging {
         resources {
@@ -72,6 +69,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true // required to access BuildConfig.SERVER_HOST
     }
+
 }

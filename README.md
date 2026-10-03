@@ -17,6 +17,8 @@ Citizens face complex, resource-heavy workflows when navigating civic identity s
 - Local Processing (SQLite)
 - Lightweight API Backend
 
+> **Note:** The Android phone app currently has connection issues (ECONNREFUSED) when connecting to the local Raspberry Pi server, which are actively being investigated. The Desktop and Web targets work correctly.
+
 ## Features
 - Synthetic enrollment
 - Profile detail updates

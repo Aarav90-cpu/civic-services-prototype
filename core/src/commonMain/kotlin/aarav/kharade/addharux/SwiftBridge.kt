@@ -16,5 +16,7 @@
 
 package aarav.kharade.addharux
 
-fun sayHello(to: String): String =
-    "Hello, $to!"
+expect object SwiftBridge {
+    suspend fun submitApplication(json: String): String
+    suspend fun getApplication(id: String): String
+}

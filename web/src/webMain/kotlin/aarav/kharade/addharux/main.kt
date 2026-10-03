@@ -19,13 +19,9 @@ package aarav.kharade.addharux
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 
-// js() must be called from a top-level function body — lambdas are not allowed.
-private fun reloadPage(): Unit = js("window.location.reload()")
-
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport {
-        // On a successful submission, reload the page to clear the form
-        App(onSubmitSuccess = { reloadPage() })
+        App()
     }
 }

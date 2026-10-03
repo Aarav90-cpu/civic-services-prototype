@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 Aarav Ravindra Kharade
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package aarav.kharade.addharux
 
 import androidx.compose.animation.*
@@ -58,14 +74,17 @@ fun String.localized(lang: Language): String {
         "Submit Application" to mapOf(Language.HI to "आवेदन जमा करें", Language.MR to "अर्ज सबमिट करा"),
         "Success!" to mapOf(Language.HI to "सफलता!", Language.MR to "यशस्वी!"),
         "Error:" to mapOf(Language.HI to "त्रुटि:", Language.MR to "त्रुटी:"),
-        "Unknown error" to mapOf(Language.HI to "अज्ञात त्रुटि", Language.MR to "अज्ञात त्रुटी")
+        "Unknown error" to mapOf(Language.HI to "अज्ञात त्रुटि", Language.MR to "अज्ञात त्रुटी"),
+        "Application Status Tracking" to mapOf(Language.HI to "आवेदन स्थिति ट्रैकिंग", Language.MR to "अर्ज स्थिती ट्रॅकिंग"),
+        "Application ID (e.g. APP-2026-XXXXXX)" to mapOf(Language.HI to "आवेदन आईडी (उदा. APP-2026-XXXXXX)", Language.MR to "अर्ज आयडी (उदा. APP-2026-XXXXXX)"),
+        "Checking status..." to mapOf(Language.HI to "स्थिति की जांच हो रही है...", Language.MR to "स्थिती तपासत आहे..."),
+        "Check Status" to mapOf(Language.HI to "स्थिति जांचें", Language.MR to "स्थिती तपासा")
     )
     return dict[this]?.get(lang) ?: this
 }
 
 @Composable
-// skipLoopback: pass true from physical Android devices so 127.0.0.1 is never tried
-fun App(serverHost: String = "127.0.0.1", skipLoopback: Boolean = false, onSubmitSuccess: (() -> Unit)? = null) {
+fun App(onSubmitSuccess: (() -> Unit)? = null) {
     var isDarkTheme by remember { mutableStateOf(true) }
     var currentLanguage by remember { mutableStateOf(Language.EN) }
     
@@ -118,8 +137,8 @@ fun App(serverHost: String = "127.0.0.1", skipLoopback: Boolean = false, onSubmi
                     when (screen) {
                         Screen.Dashboard -> DashboardContent(currentLanguage) { currentScreen = it }
                         Screen.Identity -> PlaceholderScreen("Digital Identity Generation")
-                        Screen.Enrollment -> EnrollmentScreen(aarav.kharade.addharux.civic.api.ApiClient(serverHost, skipLoopback), currentLanguage, onSubmitSuccess)
-                        Screen.Status -> PlaceholderScreen("Application Status Tracking")
+                        Screen.Enrollment -> EnrollmentScreen(currentLanguage, onSubmitSuccess)
+                        Screen.Status -> StatusScreen(currentLanguage)
                         Screen.Appointments -> PlaceholderScreen("Appointment Booking")
                         Screen.Profile -> PlaceholderScreen("Profile Detail Updates")
                     }

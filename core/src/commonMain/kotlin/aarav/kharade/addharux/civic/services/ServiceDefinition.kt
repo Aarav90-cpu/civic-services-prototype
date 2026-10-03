@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package aarav.kharade.addharux.models
+package aarav.kharade.addharux.civic.services
 
-data class Application(
-    val id: String,
-    val personId: String,
-    val type: String,
-    val status: String,
-    val createdAt: String,
-    val updatedAt: String
-)
+interface ServiceDefinition {
+    val serviceName: String
+    val version: String
+}

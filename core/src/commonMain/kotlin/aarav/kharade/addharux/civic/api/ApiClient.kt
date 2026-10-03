@@ -1,75 +1,70 @@
+/*
+ * Copyright 2026 Aarav Ravindra Kharade
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package aarav.kharade.addharux.civic.api
 
-import aarav.kharade.addharux.civic.enrollment.EnrollmentRequest
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
+import aarav.kharade.addharux.SwiftBridge
+import aarav.kharade.addharux.civic.enrollment.EnrollmentData
 
-// serverHost is injected by each platform's entry point.
-// Android passes BuildConfig.SERVER_HOST (auto-detected LAN IP at build time).
-// Desktop and web default to localhost.
-//
-// skipLoopback: set to true on physical Android devices — 127.0.0.1 on a phone is the
-// phone itself, not the dev machine. Trying it wastes 8 seconds per attempt.
-class ApiClient(
-    private val serverHost: String = "192.168.31.81",
-    private val skipLoopback: Boolean = false
-) {
-
-    private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
-        }
-        // Without a timeout, a hung TCP connection stalls the coroutine forever (UI freezes).
-        install(HttpTimeout) {
-            connectTimeoutMillis = 8_000
-            requestTimeoutMillis = 8_000
-            socketTimeoutMillis = 8_000
+class ApiClient {
+    
+    suspend fun submitEnrollment(data: EnrollmentData): ApiResult<String> {
+        return try {
+            // Build the JSON request in the core module
+            val firstName = data.fullName.substringBefore(" ")
+            val lastName = data.fullName.substringAfter(" ", "")
+            val dob = data.dateOfBirth
+            
+            val json = """
+            {
+                "firstName": "$firstName",
+                "lastName": "$lastName",
+                "dob": "$dob",
+                "status": "Submitted"
+            }
+            """.trimIndent()
+            
+            // Send the request via the SwiftBridge
+            val response = SwiftBridge.submitApplication(json)
+            
+            // Optionally, core parses the Application ID from the response 
+            // In a real app we'd parse JSON properly, but this is a vertical slice prototype
+            val idMatch = Regex("APP-2026-[A-Z0-9]+").find(response)
+            if (idMatch != null) {
+                ApiResult.Success(idMatch.value)
+            } else {
+                ApiResult.Error("Failed to parse Application ID: $response")
+            }
+        } catch (e: Exception) {
+            ApiResult.Error("Exception during enrollment submission: ${e.message}", e)
         }
     }
-
-    suspend fun submitEnrollment(request: EnrollmentRequest): ApiResult<ApplicationResponse> {
-        // Build the fallback list. Loopback entries are excluded on physical devices.
-        val hostsToTry = buildList {
-            add("http://$serverHost:8765")  // LAN IP (correct path for Android on same WiFi)
-            add("http://10.0.2.2:8765")     // emulator gateway to host
-            if (!skipLoopback) {
-                add("http://127.0.0.1:8765") // loopback — only useful on desktop/web
+    
+    suspend fun getApplicationStatus(applicationId: String): ApiResult<String> {
+        return try {
+            val response = SwiftBridge.getApplication(applicationId.trim())
+            
+            val statusMatch = Regex("\"status\"\\s*:\\s*\"([^\"]+)\"").find(response)
+            if (statusMatch != null) {
+                ApiResult.Success(statusMatch.groupValues[1])
+            } else {
+                ApiResult.Error("Could not parse status from: $response")
             }
+        } catch (e: Exception) {
+            ApiResult.Error("Exception during status check: ${e.message}", e)
         }
-
-        var lastError: String? = null
-
-        for (host in hostsToTry) {
-            try {
-                println("Trying host: $host")
-                val response = client.post("$host/UX/") {
-                    contentType(ContentType.Application.Json)
-                    header("Bypass-Tunnel-Reminder", "true")
-                    setBody(request)
-                }
-
-                if (response.status.isSuccess()) {
-                    val data = response.body<ApplicationResponse>()
-                    return ApiResult.Success(data)
-                } else {
-                    return ApiResult.Error("Server returned error: ${response.status}")
-                }
-            } catch (e: Exception) {
-                println("Ktor exception on $host: ${e.message}")
-                lastError = e.message
-            }
-        }
-
-        return ApiResult.Error("Network error across all hosts: $lastError")
     }
 }

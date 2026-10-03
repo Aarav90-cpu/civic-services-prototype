@@ -4,9 +4,14 @@ build/
 .idea/
 local.properties
 *.iml
-.gradle/
 .kotlin/
 web/build/
 web/.gradle/
-server/.build
+server/.build/
+addhar-server/.build/
+addhar-server/.swiftpm/
+addhar-server/Package.resolved
+.DS_Store
 .env.example
+*.tar.gz
+kotlin-js-store/

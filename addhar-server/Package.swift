@@ -12,23 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// swift-tools-version: 6.0
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
-    name: "CivicFlowServer",
+    name: "addhar-server",
+    platforms: [
+       .macOS(.v13)
+    ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.8.0"),
+        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.7.0")
     ],
     targets: [
         .executableTarget(
-            name: "CivicFlowServer",
+            name: "addhar-server",
             dependencies: [
-                .product(name: "Vapor", package: "vapor")
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver")
             ]
         )
-    ],
-    swiftLanguageModes: [.v5]
+    ]
 )
