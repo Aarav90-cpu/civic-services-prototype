@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Aarav Ravindra Kharade
+ * Copyright 2026 Aarav Ravindra Kharde
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,11 +119,11 @@ fun EnrollmentScreen(currentLanguage: Language, onSubmitSuccess: (() -> Unit)? =
                             
                             when (result) {
                                 is aarav.kharade.addharux.civic.api.ApiResult.Success -> {
-                                    submissionStatus = "Application submitted\n\nApplication ID:\n${result.data}\n\nStatus:\nSubmitted"
+                                    submissionStatus = "${"Application ID (e.g. APP-2026-XXXXXX)".localized(currentLanguage).substringBefore(" (")}:\n${result.data}\n\n${"Status".localized(currentLanguage)}:\nSubmitted"
                                     onSubmitSuccess?.invoke()
                                 }
                                 is aarav.kharade.addharux.civic.api.ApiResult.Error -> {
-                                    submissionStatus = "Error: ${result.message}"
+                                    submissionStatus = "${"Error:".localized(currentLanguage)} ${result.message}"
                                 }
                             }
                         } catch (e: Exception) {

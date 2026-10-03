@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Aarav Ravindra Kharade
+ * Copyright 2026 Aarav Ravindra Kharde
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,10 +70,10 @@ fun StatusScreen(currentLanguage: Language) {
                             
                             when (result) {
                                 is aarav.kharade.addharux.civic.api.ApiResult.Success -> {
-                                    applicationStatus = "Status: ${result.data}"
+                                    applicationStatus = "${"Status".localized(currentLanguage)}: ${result.data}"
                                 }
                                 is aarav.kharade.addharux.civic.api.ApiResult.Error -> {
-                                    applicationStatus = "Error: ${result.message}"
+                                    applicationStatus = "${"Error:".localized(currentLanguage)} ${result.message}"
                                 }
                             }
                         } catch (e: Exception) {
