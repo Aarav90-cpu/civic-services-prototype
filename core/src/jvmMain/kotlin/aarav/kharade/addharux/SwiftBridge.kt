@@ -20,44 +20,48 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
 import java.io.OutputStreamWriter
+import java.net.ConnectException
 
 actual object SwiftBridge {
-    // For Desktop, we can directly make HTTP requests to the backend since Swift interop is mostly for mobile
-    actual suspend fun submitApplication(json: String): String = withContext(Dispatchers.IO) {
-        return@withContext try {
-            val url = java.net.URI("http://192.168.31.81:8080/v1/applications").toURL()
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
+    
+    private fun doRequest(urlString: String, method: String, body: String? = null): String {
+        val url = java.net.URI(urlString).toURL()
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = method
+        connection.connectTimeout = 3000
+        connection.readTimeout = 5000
+        
+        if (body != null) {
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
-            
             OutputStreamWriter(connection.outputStream).use { writer ->
-                writer.write(json)
+                writer.write(body)
             }
-            
-            if (connection.responseCode in 200..299) {
-                connection.inputStream.bufferedReader().use { it.readText() }
-            } else {
-                "Error: ${connection.responseCode} - ${connection.errorStream.bufferedReader().use { it.readText() }}"
-            }
+        }
+        
+        return if (connection.responseCode in 200..299) {
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } else {
+            "Error: ${connection.responseCode} - ${connection.errorStream?.bufferedReader()?.use { it.readText() } ?: ""}"
+        }
+    }
+
+    actual suspend fun submitApplication(json: String): String = withContext(Dispatchers.IO) {
+        return@withContext try {
+            doRequest("${Config.SERVER_URL}/v1/applications", "POST", json)
         } catch (e: Exception) {
-            "Error: ${e.message}"
+            // S6: Show short message instead of stack trace
+            "Error: Connection failed. ${e.message}"
         }
     }
 
     actual suspend fun getApplication(id: String): String = withContext(Dispatchers.IO) {
         return@withContext try {
-            val url = java.net.URI("http://192.168.31.81:8080/v1/applications/$id").toURL()
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            
-            if (connection.responseCode in 200..299) {
-                connection.inputStream.bufferedReader().use { it.readText() }
-            } else {
-                "Error: ${connection.responseCode} - ${connection.errorStream.bufferedReader().use { it.readText() }}"
-            }
+            doRequest("${Config.SERVER_URL}/v1/applications/$id", "GET")
         } catch (e: Exception) {
-            "Error: ${e.message}"
+            // S6: Show short message instead of stack trace
+            "Error: Connection failed. ${e.message}"
         }
     }
 }
+

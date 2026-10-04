@@ -17,7 +17,7 @@
 # Check if an argument was passed
 if [ -z "$1" ]; then
     echo "Error: Please specify a target platform."
-    echo "Usage: ./build.sh [phone|web|desktop|server|all]"
+    echo "Usage: ./build.sh [phone|web|weblock|desktop|server|all]"
     exit 1
 fi
 
@@ -32,6 +32,10 @@ case "$TARGET" in
     "web")
         echo " Starting Kotlin/Wasm web development server..."
         ./gradlew wasmJsBrowserDevelopmentRun
+        ;;
+    "weblock")
+        echo " Upgrading Wasm yarn.lock file..."
+        ./gradlew kotlinWasmUpgradeYarnLock
         ;;
     "desktop")
         echo " Running Desktop application..."
@@ -49,7 +53,7 @@ case "$TARGET" in
         ;;
     *)
         echo " Error: Unknown target '$1'."
-        echo "Available options: phone, web, desktop, server, all"
+        echo "Available options: phone, web, weblock, desktop, server, all"
         exit 1
         ;;
 esac

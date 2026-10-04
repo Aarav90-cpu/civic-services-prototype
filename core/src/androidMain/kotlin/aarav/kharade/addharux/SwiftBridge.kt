@@ -48,31 +48,19 @@ actual object SwiftBridge {
 
     actual suspend fun submitApplication(json: String): String = withContext(Dispatchers.IO) {
         return@withContext try {
-            doRequest("http://192.168.31.31:8080/v1/applications", "POST", json)
-        } catch (e: ConnectException) {
-            try {
-                // Fallback for Android Emulator localhost
-                doRequest("http://10.0.2.2:8080/v1/applications", "POST", json)
-            } catch (fallbackEx: Exception) {
-                "Error: ${e.message} (Fallback also failed: ${fallbackEx.message})"
-            }
+            doRequest("${Config.SERVER_URL}/v1/applications", "POST", json)
         } catch (e: Exception) {
-            "Error: ${e.stackTraceToString()}"
+            // S6: Show short message instead of stack trace
+            "Error: Connection failed. ${e.message}"
         }
     }
 
     actual suspend fun getApplication(id: String): String = withContext(Dispatchers.IO) {
         return@withContext try {
-            doRequest("http://192.168.31.31:8080/v1/applications/$id", "GET")
-        } catch (e: ConnectException) {
-            try {
-                // Fallback for Android Emulator localhost
-                doRequest("http://10.0.2.2:8080/v1/applications/$id", "GET")
-            } catch (fallbackEx: Exception) {
-                "Error: ${e.message} (Fallback also failed: ${fallbackEx.message})"
-            }
+            doRequest("${Config.SERVER_URL}/v1/applications/$id", "GET")
         } catch (e: Exception) {
-            "Error: ${e.stackTraceToString()}"
+            // S6: Show short message instead of stack trace
+            "Error: Connection failed. ${e.message}"
         }
     }
 }

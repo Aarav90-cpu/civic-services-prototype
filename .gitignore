@@ -5,13 +5,9 @@ build/
 local.properties
 *.iml
 .kotlin/
-web/build/
-web/.gradle/
-server/.build/
 addhar-server/.build/
 addhar-server/.swiftpm/
 addhar-server/Package.resolved
 .DS_Store
-.env.example
 *.tar.gz
 kotlin-js-store/

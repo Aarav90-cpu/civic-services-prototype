@@ -16,17 +16,13 @@
 -->
 
 <network-security-config>
-    <!-- Allow cleartext HTTP to any host for debug/dev builds.
-         The base-config covers all traffic; the domain-config entries
-         below make intent explicit for the private ranges we use. -->
-    <base-config cleartextTrafficPermitted="true">
+    <!-- S7: Disallow cleartext globally, only allow to RPi server -->
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
     </base-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.31.81</domain>
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
 </network-security-config>

@@ -20,26 +20,26 @@ import kotlin.js.Promise
 import kotlin.js.JsString
 import kotlinx.coroutines.await
 
-@JsFun("(url, body) => window.fetch(url, { method: 'POST', body: body, headers: {'Content-Type': 'application/json'} }).then(res => res.text())")
+@JsFun("(url, body) => window.fetch(url, { method: 'POST', body: body, headers: {'Content-Type': 'application/json'} }).then(res => res.ok ? res.text() : res.text().then(text => Promise.reject(new Error(res.status + ' - ' + text))))")
 private external fun fetchPost(url: String, body: String): Promise<JsString>
 
-@JsFun("(url) => window.fetch(url).then(res => res.text())")
+@JsFun("(url) => window.fetch(url).then(res => res.ok ? res.text() : res.text().then(text => Promise.reject(new Error(res.status + ' - ' + text))))")
 private external fun fetchGet(url: String): Promise<JsString>
 
 actual object SwiftBridge {
     actual suspend fun submitApplication(json: String): String {
         return try {
-            fetchPost("http://192.168.31.81:8080/v1/applications", json).await<JsString>().toString()
+            fetchPost("${Config.SERVER_URL}/v1/applications", json).await<JsString>().toString()
         } catch (e: Throwable) {
-            "Error: ${e.message}"
+            "Error: Connection failed. ${e.message}"
         }
     }
 
     actual suspend fun getApplication(id: String): String {
         return try {
-            fetchGet("http://192.168.31.81:8080/v1/applications/$id").await<JsString>().toString()
+            fetchGet("${Config.SERVER_URL}/v1/applications/$id").await<JsString>().toString()
         } catch (e: Throwable) {
-            "Error: ${e.message}"
+            "Error: Connection failed. ${e.message}"
         }
     }
 }

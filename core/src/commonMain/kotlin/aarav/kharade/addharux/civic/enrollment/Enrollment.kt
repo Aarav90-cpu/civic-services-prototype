@@ -25,9 +25,3 @@ data class EnrollmentData(
     val address: String,
     val contactNumber: String
 )
-
-@Serializable
-data class EnrollmentRequest(
-    val type: String,
-    val data: EnrollmentData
-)

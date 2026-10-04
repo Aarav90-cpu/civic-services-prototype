@@ -12,19 +12,18 @@ Uses synthetic data only.
 Citizens face complex, resource-heavy workflows when navigating civic identity services. This project explores how edge processing and lightweight architecture can simplify this experience while ensuring high data security.
 
 ## Architecture
-[architecture diagram placeholder]
-- Mobile Clients (Kotlin / Swift)
-- Local Processing (SQLite)
-- Lightweight API Backend
+- Client: Kotlin / Compose Multiplatform (Android, Desktop, Web)
+- Server: Swift (Vapor) running on Raspberry Pi 4
+- Database: SQLite (Server-side)
 
-> **Note:** The Android phone app currently has connection issues (ECONNREFUSED) when connecting to the local Raspberry Pi server, which are actively being investigated. The Desktop and Web targets work correctly.
+> **Note:** The Android app requires network access. If you are using LineageOS or another custom ROM with Restricted Networking mode, you must allow the app network access to connect to the local server.
 
 ## Features
 - Synthetic enrollment
-- Profile detail updates
 - Application status tracking
-- Appointment booking
-- Digital identity generation
+- Profile detail updates (Planned)
+- Appointment booking (Planned)
+- Digital identity generation (Planned)
 
 ## Security Model
 See `docs/security-model.md`. Enforces strict backend validation; no client-side trust.
@@ -36,7 +35,7 @@ See `docs/api.md` and `docs/data-model.md`.
 See `docs/benchmark.md`.
 
 ## Reproducibility
-All data in this repository is purely synthetic and can be found in `test-data/`. No real citizen information is used or stored. Use `.env.example` to set up your environment variables locally.
+All data in this repository is purely synthetic and can be found in `test-data/`. No real citizen information is used or stored.
 
 ## Roadmap
 1. Core API definitions

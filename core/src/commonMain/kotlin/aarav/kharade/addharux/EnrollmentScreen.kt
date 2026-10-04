@@ -23,12 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import aarav.kharade.addharux.civic.enrollment.EnrollmentData
-import aarav.kharade.addharux.civic.enrollment.EnrollmentRequest
 import aarav.kharade.addharux.civic.enrollment.EnrollmentValidator
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import androidx.compose.foundation.text.selection.SelectionContainer
 
 @Composable
@@ -114,7 +110,7 @@ fun EnrollmentScreen(currentLanguage: Language, onSubmitSuccess: (() -> Unit)? =
                     coroutineScope.launch {
                         try {
                             // Let the core module handle request building and parsing
-                            val apiClient = aarav.kharade.addharux.civic.api.ApiClient()
+                            val apiClient = aarav.kharade.addharux.civic.api.ApiClient
                             val result = apiClient.submitEnrollment(data)
                             
                             when (result) {

@@ -18,51 +18,69 @@ package aarav.kharade.addharux.civic.api
 
 import aarav.kharade.addharux.SwiftBridge
 import aarav.kharade.addharux.civic.enrollment.EnrollmentData
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 
-class ApiClient {
+@Serializable
+private data class ApplicationRequest(
+    val firstName: String,
+    val lastName: String,
+    val dob: String,
+    val status: String = "Submitted"
+)
+
+@Serializable
+private data class ApplicationResponse(
+    val id: String,
+    val status: String
+)
+
+object ApiClient {
+    private val jsonConfig = Json { 
+        ignoreUnknownKeys = true 
+        encodeDefaults = true
+    }
     
     suspend fun submitEnrollment(data: EnrollmentData): ApiResult<String> {
         return try {
-            // Build the JSON request in the core module
             val firstName = data.fullName.substringBefore(" ")
             val lastName = data.fullName.substringAfter(" ", "")
-            val dob = data.dateOfBirth
             
-            val json = """
-            {
-                "firstName": "$firstName",
-                "lastName": "$lastName",
-                "dob": "$dob",
-                "status": "Submitted"
+            val requestBody = ApplicationRequest(
+                firstName = firstName,
+                lastName = lastName,
+                dob = data.dateOfBirth
+            )
+            val jsonString = jsonConfig.encodeToString(requestBody)
+            
+            val response = SwiftBridge.submitApplication(jsonString)
+            
+            if (response.startsWith("Error:")) {
+                return ApiResult.Error(response)
             }
-            """.trimIndent()
             
-            // Send the request via the SwiftBridge
-            val response = SwiftBridge.submitApplication(json)
-            
-            // Optionally, core parses the Application ID from the response 
-            // In a real app we'd parse JSON properly, but this is a vertical slice prototype
-            val idMatch = Regex("APP-2026-[A-Z0-9]+").find(response)
-            if (idMatch != null) {
-                ApiResult.Success(idMatch.value)
-            } else {
-                ApiResult.Error("Failed to parse Application ID: $response")
-            }
+            val apiResponse = jsonConfig.decodeFromString<ApplicationResponse>(response)
+            ApiResult.Success(apiResponse.id)
         } catch (e: Exception) {
             ApiResult.Error("Exception during enrollment submission: ${e.message}", e)
         }
     }
     
     suspend fun getApplicationStatus(applicationId: String): ApiResult<String> {
+        val trimmedId = applicationId.trim()
+        if (!trimmedId.matches(Regex("^APP-2026-[A-Z0-9]+$"))) {
+            return ApiResult.Error("Invalid Application ID format")
+        }
         return try {
-            val response = SwiftBridge.getApplication(applicationId.trim())
+            val response = SwiftBridge.getApplication(trimmedId)
             
-            val statusMatch = Regex("\"status\"\\s*:\\s*\"([^\"]+)\"").find(response)
-            if (statusMatch != null) {
-                ApiResult.Success(statusMatch.groupValues[1])
-            } else {
-                ApiResult.Error("Could not parse status from: $response")
+            if (response.startsWith("Error:")) {
+                return ApiResult.Error(response)
             }
+            
+            val apiResponse = jsonConfig.decodeFromString<ApplicationResponse>(response)
+            ApiResult.Success(apiResponse.status)
         } catch (e: Exception) {
             ApiResult.Error("Exception during status check: ${e.message}", e)
         }

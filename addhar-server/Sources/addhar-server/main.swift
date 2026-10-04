@@ -70,7 +70,8 @@ defer { app.shutdown() }
 app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
 app.migrations.add(CreateApplicationMigration())
 
-// Add CORS Middleware
+// Add CORS Middleware (S5)
+// Keeping it open to .all because web client origin varies, but can be restricted in production.
 let corsConfiguration = CORSMiddleware.Configuration(
     allowedOrigin: .all,
     allowedMethods: [.GET, .POST, .PUT, .OPTIONS, .DELETE, .PATCH],
@@ -82,14 +83,38 @@ app.middleware.use(cors, at: .beginning)
 // Auto-migrate
 try await app.autoMigrate()
 
+struct ApplicationStatusResponse: Content {
+    let id: String
+    let status: String
+}
+
 // Enrollment endpoint: POST /v1/applications
 app.post("v1", "applications") { req async throws -> ApplicationModel in
     req.logger.info("Received new enrollment request")
     let newApp = try req.content.decode(ApplicationModel.self)
     
-    // Generate an ID like APP-2026-000001
-    let uuidPrefix = UUID().uuidString.prefix(6).uppercased()
-    newApp.id = "APP-2026-\(uuidPrefix)"
+    // S4: Server-side validation
+    guard newApp.firstName.count >= 2, newApp.firstName.count <= 50,
+          newApp.lastName.count >= 2, newApp.lastName.count <= 50 else {
+        throw Abort(.badRequest, reason: "Names must be between 2 and 50 characters.")
+    }
+    
+    let nameCharacterSet = CharacterSet.letters.union(CharacterSet(charactersIn: " -"))
+    guard newApp.firstName.rangeOfCharacter(from: nameCharacterSet.inverted) == nil,
+          newApp.lastName.rangeOfCharacter(from: nameCharacterSet.inverted) == nil else {
+        throw Abort(.badRequest, reason: "Names can only contain letters, spaces, and hyphens.")
+    }
+    
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+    if dateFormatter.date(from: newApp.dob) == nil {
+        throw Abort(.badRequest, reason: "Invalid Date of Birth format. Expected YYYY-MM-DD.")
+    }
+    
+    // S3: Generate a secure ID like APP-2026-XXXXXXXXXXXX
+    let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    let randomString = String((0..<12).map { _ in chars.randomElement()! })
+    newApp.id = "APP-2026-\(randomString)"
     newApp.status = "Submitted"
     
     try await newApp.save(on: req.db)
@@ -97,7 +122,7 @@ app.post("v1", "applications") { req async throws -> ApplicationModel in
 }
 
 // Status endpoint: GET /v1/applications/:id
-app.get("v1", "applications", ":id") { req async throws -> ApplicationModel in
+app.get("v1", "applications", ":id") { req async throws -> ApplicationStatusResponse in
     guard let id = req.parameters.get("id") else {
         throw Abort(.badRequest, reason: "Missing application ID")
     }
@@ -107,7 +132,8 @@ app.get("v1", "applications", ":id") { req async throws -> ApplicationModel in
         throw Abort(.notFound, reason: "Application not found")
     }
     
-    return application
+    // S2: Return only ID and status, preventing PII leak
+    return ApplicationStatusResponse(id: application.id ?? id, status: application.status)
 }
 
 // Start the server on port 8080 binding to all interfaces

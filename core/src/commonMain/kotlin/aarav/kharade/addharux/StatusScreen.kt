@@ -65,7 +65,7 @@ fun StatusScreen(currentLanguage: Language) {
                     
                     coroutineScope.launch {
                         try {
-                            val apiClient = aarav.kharade.addharux.civic.api.ApiClient()
+                            val apiClient = aarav.kharade.addharux.civic.api.ApiClient
                             val result = apiClient.getApplicationStatus(applicationId.trim())
                             
                             when (result) {
